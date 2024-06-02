@@ -1,0 +1,21 @@
+vim /usr/bin/tcolct.sh
+#!/bin/bash
+socat TCP-LISTEN:64434,reuseaddr,fork EXEC:"tcpreplay -t -i owlh -"
+
+chmod +x /usr/bin/tcolct.sh
+---
+vim /lib/systemd/system/tcolct.service
+
+[Unit]
+Description=tfrwd
+
+[Service]
+ExecStart=/usr/bin/tcolct.sh
+Restart=always
+RestartSec=1
+[Install]
+WantedBy=multi-user.target
+
+systemctl daemon-reload
+systemctl enable tcolct
+systemctl start tcolct
