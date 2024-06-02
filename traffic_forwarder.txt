@@ -19,5 +19,5 @@ WantedBy=multi-user.target
 
 
 systemctl daemon-reload
-systemctl enable tcolct
-systemctl start tcolct
+systemctl enable tfrwd
+systemctl start tfrwd
