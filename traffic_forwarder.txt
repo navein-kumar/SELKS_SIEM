@@ -1,0 +1,18 @@
+vim /usr/bin/tfrwd.sh
+
+#!/bin/bash
+tcpdump -nn -i eth0 -s 0 -w - not port 64434 and not port 1514 and not port 64444 and not port 64445 and not port 64446 and not port bootps and not arp and not llc and not icmp | /usr/bin/socat -lfeth0 - TCP:156.67.80.79:64434,forever 2>&1
+
+chmod +x tfrwd.sh
+
+vim /lib/systemd/system/tfrwd.service
+
+[Unit]
+Description=tfrwd
+
+[Service]
+ExecStart=/usr/bin/tfrwd.sh
+Restart=always
+RestartSec=2
+[Install]
+WantedBy=multi-user.target
