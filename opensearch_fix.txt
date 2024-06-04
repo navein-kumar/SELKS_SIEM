@@ -1,0 +1,10 @@
+docker exec -it scirius bash
+vim /opt/scirius/rules/es_query.py
+
+def get_next_link(self, total):
+        total = int(100) ---> fix 87 line add this -->
+        if self._get_current_page() * self.get_page_size(self.request) >= total:
+            return None
+        url = self.request.build_absolute_uri()
+        page_number= (get_number( self._get_current_page() + 1))
+        return replace_query_param(url, self.page_query_param, page_number)
