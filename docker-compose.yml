@@ -1,5 +1,3 @@
-
-
 version: '3.4'
 
 networks:
@@ -7,6 +5,7 @@ networks:
 
 volumes:
   elastic-data:  #for ES data persistency
+  elastic-config:
   suricata-rules: #for suricata rules transfer between scirius and suricata and for persistency
   scirius-data: #for scirius data persistency
   scirius-static: #statics files to be served by nginx
@@ -27,7 +26,7 @@ services:
 
   elasticsearch:
     container_name: elasticsearch
-    image: elastic/elasticsearch:${ELK_VERSION:-7.16.1}
+    image: opensearchproject/opensearch:2.6.0
     restart: ${RESTART_MODE:-unless-stopped}
     healthcheck:
       test: ["CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health || exit 1"]
@@ -36,41 +35,47 @@ services:
       retries: 3
       start_period: 30s
     environment:
+      - cluster.name=elasticsearch
+      - node.name=elasticsearch
       - discovery.type=single-node
-      - xpack.security.enabled=false
-      - xpack.ml.enabled=${ML_ENABLED:-true}
-      - ingest.geoip.downloader.enabled=false
+      #- discovery.seed_hosts=elasticsearch
+      - bootstrap.memory_lock=true # Disable JVM heap memory swapping
+      - "OPENSEARCH_JAVA_OPTS=-Xms2g -Xmx2g" # Set min and max JVM heap sizes to at least 50% of system RAM
+      - "DISABLE_INSTALL_DEMO_CONFIG=true" # Prevents execution of bundled demo script which installs demo certificates and security configurations to OpenSearch
+      - "DISABLE_SECURITY_PLUGIN=true" # Disables Security plugin
     volumes:
-      - ${ELASTIC_DATAPATH:-elastic-data}:/usr/share/elasticsearch/data
-    mem_limit: ${ELASTIC_MEMORY:-3G}
+      - elastic-config:/usr/share/
+      - elastic-data:/var/lib/
     ulimits:
       memlock:
-        soft: -1
+        soft: -1 # Set memlock to unlimited (no soft or hard limit)
         hard: -1
+      nofile:
+        soft: 65536 # Maximum number of open files for the opensearch user - set to at least 65536
+        hard: 65536
     networks:
       network:
 
   kibana:
     container_name: kibana
-    image:  elastic/kibana:${ELK_VERSION:-7.16.1}
-      # image: opensearchproject/logstash-oss-with-opensearch-output-plugin
+    image:  opensearchproject/opensearch-dashboards:2.6.0
     restart: ${RESTART_MODE:-unless-stopped}
-    healthcheck:
-      test: ["CMD-SHELL", "curl --silent --fail localhost:5601 || exit 1"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 30s
+    ports:
+      - 5601:5601
+    expose:
+      - "5601" # Expose port 5601 for web access to OpenSearch Dashboards
+    environment:
+      - 'OPENSEARCH_HOSTS=["http://elasticsearch:9200"]'
+      - "DISABLE_SECURITY_DASHBOARDS_PLUGIN=true"
     networks:
       network:
 
   logstash:
     container_name: logstash
-      # image:  elastic/logstash:${ELK_VERSION:-7.16.1}
-    image: opensearchproject/logstash-oss-with-opensearch-output-plugin
-      # depends_on:
-      #scirius:
-      #  condition: service_healthy #because we need to wait for scirius to populate ILM policy
+    image:   opensearchproject/logstash-oss-with-opensearch-output-plugin
+    depends_on:
+      scirius:
+        condition: service_healthy #because we need to wait for scirius to populate ILM policy
     restart: ${RESTART_MODE:-unless-stopped}
     healthcheck:
       test: ["CMD-SHELL", "curl --silent --fail localhost:9600 || exit 1"]
@@ -92,7 +97,7 @@ services:
     image: jasonish/suricata:master-amd64
     entrypoint: /etc/suricata/new_entrypoint.sh
     restart: ${RESTART_MODE:-unless-stopped}
-      # depends_on:
+      #depends_on:
       #scirius:
       # condition: service_healthy
     environment:
@@ -184,16 +189,3 @@ services:
       - ${PWD}/containers-data/cron-jobs/hourly:/etc/periodic/hourly/:ro
       - ${PWD}/containers-data/cron-jobs/monthly:/etc/periodic/monthly/:ro
       - ${PWD}/containers-data/cron-jobs/weekly:/etc/periodic/weekly/:ro
-
-
-        #arkime:
-        #container_name: arkime
-        #image: ghcr.io/stamusnetworks/arkimeviewer:${ARKIMEVIEWER_VERSION:-master} ## Repo will need to be changed to stamusnetwork once image built
-        #restart: ${RESTART_MODE:-no}
-        #volumes:
-        #- ${PWD}/containers-data/suricata/logs:/suricata-logs:ro
-        #- arkime-config:/data/config
-        #- arkime-pcap:/data/pcap
-        #- arkime-logs:/data/logs
-        # networks:
-        #network:
