@@ -67,9 +67,6 @@ services:
   logstash:
     container_name: logstash
     image:   opensearchproject/logstash-oss-with-opensearch-output-plugin
-    depends_on:
-      scirius:
-        condition: service_healthy #because we need to wait for scirius to populate ILM policy
     restart: ${RESTART_MODE:-unless-stopped}
     mem_limit: ${LOGSTASH_MEMORY:-2G}
     volumes:
