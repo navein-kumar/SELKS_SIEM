@@ -28,12 +28,6 @@ services:
     container_name: elasticsearch
     image: opensearchproject/opensearch:2.6.0
     restart: ${RESTART_MODE:-unless-stopped}
-    healthcheck:
-      test: ["CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 30s
     environment:
       - cluster.name=elasticsearch
       - node.name=elasticsearch
