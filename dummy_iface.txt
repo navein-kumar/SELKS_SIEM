@@ -1,3 +1,6 @@
 ip link add owlh type dummy && \
 ip link set owlh up && \
 ifconfig owlh mtu 9216
+
+--
+tcpstat -i owlh -l -o "Time:%S\tn=%n\tavg=%a\tstddev=%d\tbps=%b\tMaxPacketSize=%M\n"  5
