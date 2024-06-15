@@ -2,6 +2,7 @@ vim /usr/bin/tcolct.sh
 #!/bin/bash
 socat TCP-LISTEN:64434,reuseaddr,fork EXEC:"tcpreplay -t -i owlh -"
 
+
 chmod +x /usr/bin/tcolct.sh
 ---
 vim /lib/systemd/system/tcolct.service
@@ -19,3 +20,8 @@ WantedBy=multi-user.target
 systemctl daemon-reload
 systemctl enable tcolct
 systemctl start tcolct
+
+--v2--
+#!/bin/bash
+socat  TCP-LISTEN:64434,reuseaddr,fork EXEC:"tcpreplay -t -i owlh -"
+#socat TCP-LISTEN:64434,reuseaddr,fork EXEC:"tcpdump -n -r - -s 0 -G 58 -W 100 -w /pcap/remote-%d%m%Y%H%M%S.pcap"
