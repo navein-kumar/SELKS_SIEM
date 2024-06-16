@@ -20,8 +20,8 @@ filebeat.overwrite_pipelines: true <----------
 setup.ilm.enabled: false
 output.elasticsearch:
   hosts: ['https://wazuh.indexer:9200']
-  username: 'admin'
-  password: 'CodesecSiemAdmin2023'
+  username: 'axxxx'
+  password: 'xxxxx'
   ssl.verification_mode: 'full'
   ssl.certificate_authorities: ['/etc/ssl/root-ca.pem']
   ssl.certificate: '/etc/ssl/filebeat.pem'
