@@ -1,0 +1,3 @@
+copy suricata.zip to  -->  /usr/share/filebeat/module
+
+resart create index pattern in dashboard
