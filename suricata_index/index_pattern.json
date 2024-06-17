@@ -6,7 +6,7 @@ PUT /_template/suricata
 
   ],
   "settings": {
-    "index.refresh_interval": "5s",
+    "index.refresh_interval": "10s",
     "index.number_of_shards": "1",
     "index.number_of_replicas": "0",
     "index.auto_expand_replicas": "0-1",
