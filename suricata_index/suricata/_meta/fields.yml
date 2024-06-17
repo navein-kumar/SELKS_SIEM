@@ -1,0 +1,9 @@
+- key: suricata
+  title: "suricata"
+  description: >
+    suricata Module
+  fields:
+    - name: suricata
+      type: group
+      description: >
+      fields:
