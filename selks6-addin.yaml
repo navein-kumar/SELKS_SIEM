@@ -143,7 +143,7 @@ detect:
   # Very common ports will benefit, as well as ports with many expensive
   # rules.
   grouping:
-    tcp-whitelist: 53, 80, 139, 443, 445, 1433, 3306, 3389, 6666, 6667, 8080
+    tcp-whitelist: 53, 80, 139, 443, 445, 1433, 3306, 3389, 6666, 6667, 8080, 27017
     udp-whitelist: 53, 135, 5060
 
 
@@ -377,29 +377,37 @@ outputs:
             # for the body you need to set app-layer.protocols.smtp.mime.body-md5
             # to yes
             md5: [body, subject]
-        - dnp3
+        - dnp3:
+           enabled: no
         - ftp
         - rdp
         - nfs
         - smb
         - tftp
-        - ike
-        - krb5
-        - snmp
-        - rfb
-        - sip
-        - quic
+        - ike:
+           enabled: no
+        - krb5:
+           enabled: no
+        - snmp:
+            enabled: no
+        - rfb:
+            enabled: yes
+        - sip:
+            enabled: no
+        - quic:
+            enabled: no
         - dhcp:
             enabled: no
             # When extended mode is on, all DHCP messages are logged
             # with full detail. When extended mode is off (the
             # default), just enough information to map a MAC address
             # to an IP address is logged.
-            extended: no
+            extended: yes
         - ssh
         - mqtt:
             # passwords: yes           # enable output of passwords
         - http2
+        - http1  
         - pgsql:
             enabled: no
             # passwords: yes           # enable output of passwords. Disabled by default
@@ -408,13 +416,13 @@ outputs:
             threads: no       # per thread stats
             deltas: yes        # include delta values
         # bi-directional flows
-        #- flow
+        # - flow
         # uni-directional flows
         #- netflow
         # Metadata event type. Triggered whenever a pktvar is saved
         # and will include the pktvars, flowvars, flowbits and
         # flowints.
-        # - metadata
+        - metadata
 
   # alert output for use with Barnyard2
   - unified2-alert:
@@ -525,10 +533,10 @@ outputs:
 
       # File size limit.  Can be specified in kb, mb, gb.  Just a number
       # is parsed as bytes.
-      limit: 100mb
+      limit: 10mb
 
       # If set to a value will enable ring buffer mode. Will keep Maximum of "max-files" of size "limit"
-      max-files: 100
+      max-files: 20
 
       mode: multi # normal, multi or sguil.
 
@@ -800,7 +808,7 @@ app-layer:
       #encrypt-handling: default
       
     dcerpc:
-      enabled: yes
+      enabled: no
     ftp:
       enabled: yes
       # memcap: 64mb
@@ -853,9 +861,9 @@ app-layer:
     tftp:
       enabled: yes
     sip:
-      enabled: yes
+      enabled: no
     dhcp:
-      enabled: yes
+      enabled: no
     dns:
       # memcaps. Globally and per flow/state.
       #global-memcap: 16mb
@@ -875,6 +883,8 @@ app-layer:
           dp: 53
     http:
       enabled: yes
+    http1:
+      enabled: yes    
       # memcap: 64mb
 
       # default-config:           Used when no server-config matches
